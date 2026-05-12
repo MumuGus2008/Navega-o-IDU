@@ -1,0 +1,351 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Navegação — Apoio ao Estudo</title>
+  <style>
+    :root{
+      --accent:#3f62ff; --accent-text:#fff;
+      --bg:#eef3fb; --panel:#fff; --muted:#64748b;
+      --radius:1.25rem; --gap:1rem; --shadow:0 6px 20px rgba(15,23,42,.06);
+      --font-scale:1;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%;margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial; font-size:16px}
+    body{background:var(--bg);color:#0f172a;line-height:1.35;transition:background .2s,color .2s;font-size:calc(var(--font-scale) * 1rem)}
+    .container{max-width:1100px;margin:24px auto;padding:16px;display:flex;gap:var(--gap);min-height:calc(100vh - 48px)}
+
+    /* Sidebar */
+    .sidebar{width:280px;padding:20px;border-radius:28px;background:var(--panel);border:1px solid #e6eefb;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:16px}
+    .brand{display:flex;align-items:center;gap:12px}
+    .brand .logo{width:48px;height:48px;border-radius:12px;background:var(--accent);display:grid;place-items:center;color:var(--accent-text);font-weight:700}
+    .nav{display:flex;flex-direction:column;gap:10px}
+    .nav button{display:flex;justify-content:space-between;align-items:center;padding:12px;border-radius:12px;border:1px solid transparent;background:transparent;cursor:pointer;font-weight:600}
+    .nav button .left{display:flex;gap:10px;align-items:center}
+    .nav button.active{background:var(--accent);color:var(--accent-text);border-color:transparent}
+
+    .panel{flex:1;background:var(--panel);border:1px solid #e6eefb;border-radius:28px;padding:20px;box-shadow:var(--shadow)}
+    header.small{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+
+    .grid{display:grid;gap:12px}
+    .cols-2{grid-template-columns:1fr .9fr}
+    .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:8px}
+    .card{border-radius:14px;padding:12px;background:linear-gradient(180deg,#f8fbff,#fff);border:1px solid #e6f0ff}
+
+    .actions{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:12px}
+    .action{background:var(--panel);border-radius:16px;padding:14px;border:1px solid #eef6ff;cursor:pointer}
+
+    /* Bottom nav for mobile */
+    nav.bottom{position:fixed;left:0;right:0;bottom:0;background:rgba(255,255,255,.95);border-top:1px solid #e6eefb;padding:8px 12px;display:none}
+    nav.bottom .row{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
+
+    /* Settings */
+    .row-center{display:flex;align-items:center;justify-content:space-between}
+    .toggle{position:relative;width:46px;height:26px;background:#e6eefb;border-radius:999px;padding:3px;cursor:pointer}
+    .toggle input{display:none}
+    .toggle .knob{width:20px;height:20px;border-radius:50%;background:#fff;box-shadow:0 2px 6px rgba(2,6,23,.08);transform:translateX(0);transition:transform .18s}
+    .toggle.on{background:var(--accent)}
+    .toggle.on .knob{transform:translateX(20px)}
+
+    /* Alerts */
+    .notification{border-radius:18px;padding:12px;border:1px solid #eef6ff;background:var(--panel);display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
+    .dot{width:10px;height:10px;border-radius:50%;background:var(--accent);display:inline-block}
+
+    /* high contrast */
+    .hc{--bg:#0f172a;--panel:#0b1220;color:#fff;--accent:#06b6d4}
+    .hc .sidebar{background:#091124;border-color:#1f2937}
+    .hc nav.bottom{background:rgba(2,6,23,.9);border-top-color:#1f2937}
+
+    /* responsive */
+    @media (max-width:900px){
+      .container{flex-direction:column;padding-bottom:80px}
+      .sidebar{display:none}
+      nav.bottom{display:block}
+    }
+  </style>
+</head>
+<body>
+  <div class="container" id="app">
+    <aside class="sidebar" aria-label="Barra lateral">
+      <div class="brand">
+        <div class="logo">A</div>
+        <div>
+          <div style="font-size:12px;color:var(--muted);letter-spacing:.18em;text-transform:uppercase">Plataforma</div>
+          <div style="font-weight:700">Apoio ao Estudo</div>
+        </div>
+      </div>
+
+      <div class="nav" role="navigation" aria-label="Navegação principal">
+        <button data-screen="home" class="active"><span class="left">🏠<span style="width:8px"></span>Início</span><span>›</span></button>
+        <button data-screen="qr"><span class="left">🔳<span style="width:8px"></span>QR Code</span><span>›</span></button>
+        <button data-screen="profile"><span class="left">👤<span style="width:8px"></span>Perfil</span><span>›</span></button>
+        <button data-screen="alerts"><span class="left">🔔<span style="width:8px"></span>Alertas</span><span>›</span></button>
+        <button data-screen="settings"><span class="left">⚙️<span style="width:8px"></span>Ajustes</span><span>›</span></button>
+      </div>
+
+      <div style="margin-top:auto;padding:12px;border-radius:16px;background:linear-gradient(180deg,#f8fbff,#ffffff);border:1px solid #e6f0ff">
+        <div style="font-weight:600">Acesso rápido</div>
+        <div style="font-size:13px;color:var(--muted);margin-top:6px">Ative contraste, leitura em voz alta e fonte ampliada para reduzir carga cognitiva.</div>
+      </div>
+    </aside>
+
+    <main class="panel" id="panel">
+      <!-- dynamic content -->
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+        <div></div>
+        <div style="display:flex;gap:8px;align-items:center">
+          <div id="userGreeting" style="font-weight:600;color:var(--muted);display:none">Olá, <span id="userName">Usuário</span></div>
+          <button id="btnLogin" style="padding:8px 12px;border-radius:10px;border:1px solid #e6eefb;background:transparent;cursor:pointer">Entrar</button>
+          <button id="btnRegister" style="padding:8px 12px;border-radius:10px;background:var(--accent);color:var(--accent-text);border:none;cursor:pointer">Cadastrar</button>
+          <button id="btnLogout" style="padding:8px 12px;border-radius:10px;background:#f3f4f6;border:none;display:none">Sair</button>
+        </div>
+      </div>
+      <section id="home" class="screen">
+        <div class="row-center small">
+          <div>
+            <div style="font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.12em">Bem-vinda,</div>
+            <h1 style="margin:.25rem 0 0;font-size:28px">Ana Clara Silva</h1>
+            <p style="margin:8px 0 0;color:var(--muted)">Acompanhe seu ritmo, visualize sua rotina e acesse recursos pensados para apoiar sua aprendizagem.</p>
+          </div>
+          <div style="width:56px;height:56px;border-radius:12px;background:var(--accent);display:grid;place-items:center;color:var(--accent-text)">📚</div>
+        </div>
+
+        <div class="stats">
+          <div class="card"><div style="font-size:12px;color:var(--muted)">Progresso semanal</div><div style="margin-top:6px;font-weight:700">78%</div></div>
+          <div class="card"><div style="font-size:12px;color:var(--muted)">Tarefas concluídas</div><div style="margin-top:6px;font-weight:700">12</div></div>
+          <div class="card"><div style="font-size:12px;color:var(--muted)">Sessões de apoio</div><div style="margin-top:6px;font-weight:700">4</div></div>
+        </div>
+
+        <div class="actions">
+          <div class="action" data-action="profile">🧠<div style="font-weight:700;margin-top:8px">Apoio imediato</div><div style="color:var(--muted);font-size:13px">Fluxo rápido com instruções simples</div></div>
+          <div class="action" data-action="alerts">📅<div style="font-weight:700;margin-top:8px">Agenda de estudos</div><div style="color:var(--muted);font-size:13px">Prazos e lembretes</div></div>
+          <div class="action" data-action="qr">🔳<div style="font-weight:700;margin-top:8px">Acesso por QR</div><div style="color:var(--muted);font-size:13px">Autenticação rápida</div></div>
+        </div>
+
+      </section>
+
+      <section id="qr" class="screen" style="display:none">
+        <div class="row-center"><div><div style="font-size:12px;color:var(--muted)">Acesso rápido</div><h2 style="margin:.25rem 0 0">QR Code institucional</h2></div>
+          <button onclick="speak('QR Code exibido para acesso rápido.')" style="border-radius:12px;padding:8px 12px;background:transparent;border:1px solid #e6eefb">🔊 Ler tela</button></div>
+        <div style="margin-top:16px;display:flex;gap:12px;align-items:flex-start">
+          <div style="flex:1;display:grid;place-items:center">
+            <div style="width:100%;max-width:360px;height:260px;border-radius:20px;border:8px dashed #e6eefb;display:grid;place-items:center;background:#fff"><div style="width:120px;height:120px;border-radius:18px;background:#fff;display:grid;place-items:center">🔳</div></div>
+          </div>
+          <div style="width:320px">
+            <div style="padding:14px;border-radius:16px;background:var(--accent);color:var(--accent-text)">Dica de acessibilidade: mantenha o celular próximo da tela e use o botão de áudio.</div>
+            <div style="margin-top:12px;padding:14px;border-radius:16px;border:1px solid #eef6ff;background:var(--panel)">
+              <div style="font-weight:700">Fluxo</div>
+              <ol style="margin:8px 0 0;padding-left:18px;color:var(--muted)"><li>Abra a câmera ou leitor</li><li>Aponte para o código</li><li>Aguarde confirmação</li></ol>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="profile" class="screen" style="display:none">
+        <div><div style="font-size:12px;color:var(--muted)">Dados do estudante</div><h2 style="margin:.25rem 0 0">Perfil de aprendizagem</h2></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px">
+          <div style="padding:12px;border-radius:16px;border:1px solid #eef6ff;background:var(--panel)">
+            <div style="display:flex;gap:12px;align-items:center"><div style="width:72px;height:72px;border-radius:12px;background:var(--accent);display:grid;place-items:center;color:var(--accent-text);font-size:22px">👤</div>
+            <div><div style="font-size:12px;color:var(--muted)">Aluno(a)</div><div style="font-weight:700">Ana Clara Silva</div></div></div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px">
+              <div style="padding:10px;border-radius:12px;background:linear-gradient(180deg,#f8fbff,#fff)"><div style="font-size:12px;color:var(--muted)">Curso</div><div style="font-weight:700">Técnico / Graduação</div></div>
+              <div style="padding:10px;border-radius:12px;background:linear-gradient(180deg,#f8fbff,#fff)"><div style="font-size:12px;color:var(--muted)">Turma</div><div style="font-weight:700">Acompanhamento 01</div></div>
+              <div style="padding:10px;border-radius:12px;background:linear-gradient(180deg,#f8fbff,#fff)"><div style="font-size:12px;color:var(--muted)">Nível</div><div style="font-weight:700">Intermediário</div></div>
+              <div style="padding:10px;border-radius:12px;background:linear-gradient(180deg,#f8fbff,#fff)"><div style="font-size:12px;color:var(--muted)">Objetivo</div><div style="font-weight:700">Mais autonomia</div></div>
+            </div>
+          </div>
+          <div style="padding:12px;border-radius:16px;border:1px solid #eef6ff;background:var(--panel)">
+            <div style="font-size:12px;color:var(--muted)">Editar nome</div>
+            <div style="display:flex;gap:8px;margin-top:8px"><input id="nameInput" value="Ana Clara Silva" style="flex:1;padding:10px;border-radius:12px;border:1px solid #eef6ff" /> <button onclick="speak('Nome atualizado para ' + document.getElementById('nameInput').value)" style="padding:10px;border-radius:12px;background:var(--accent);color:var(--accent-text);border:none">Salvar</button></div>
+            <div style="margin-top:12px;padding:12px;border-radius:12px;border:1px solid #eef6ff;background:var(--panel)"><div style="font-weight:700">Preferências</div><div style="display:flex;gap:8px;margin-top:8px"><div style="padding:6px 10px;border-radius:999px;border:1px solid #eef6ff">Textos curtos</div><div style="padding:6px 10px;border-radius:999px;border:1px solid #eef6ff">Leitura guiada</div></div></div>
+          </div>
+        </div>
+      </section>
+
+      <section id="alerts" class="screen" style="display:none">
+        <div class="row-center"><div><div style="font-size:12px;color:var(--muted)">Organização e lembretes</div><h2 style="margin:.25rem 0 0">Notificações</h2></div>
+          <button id="markAll" style="padding:8px 12px;border-radius:12px;background:var(--accent);color:var(--accent-text);border:none">✔️ Marcar lidas</button></div>
+
+        <div style="display:grid;grid-template-columns:1fr .9fr;gap:12px;margin-top:12px">
+          <div id="notificationsList">
+            <!-- notifications rendered here -->
+          </div>
+          <div style="padding:12px;border-radius:16px;border:1px solid #eef6ff;background:var(--panel)"><div style="font-weight:700">Resumo</div><div id="unreadCount" style="margin-top:8px;color:var(--muted)"></div></div>
+        </div>
+      </section>
+
+      <section id="settings" class="screen" style="display:none">
+        <div><div style="font-size:12px;color:var(--muted)">Acessibilidade e personalização</div><h2 style="margin:.25rem 0 0">Configurações</h2></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px">
+          <div style="padding:12px;border-radius:16px;border:1px solid #eef6ff;background:var(--panel)">
+            <div style="display:flex;flex-direction:column;gap:10px">
+              <div class="row-center"><div><div style="font-weight:700">Alto contraste</div><div style="font-size:13px;color:var(--muted)">Melhora a leitura</div></div><div class="toggle" id="tcContrast"><div class="knob"></div></div></div>
+              <div class="row-center"><div><div style="font-weight:700">Leitura em voz alta</div><div style="font-size:13px;color:var(--muted)">Orientação sonora</div></div><div class="toggle on" id="tcAudio"><div class="knob"></div></div></div>
+              <div class="row-center"><div><div style="font-weight:700">Menos animações</div><div style="font-size:13px;color:var(--muted)">Navegação estável</div></div><div class="toggle" id="tcMotion"><div class="knob"></div></div></div>
+            </div>
+          </div>
+          <div style="padding:12px;border-radius:16px;border:1px solid #eef6ff;background:var(--panel)">
+            <div style="display:flex;justify-content:space-between;align-items:center"><div><div style="font-weight:700">Tamanho da fonte</div><div style="font-size:13px;color:var(--muted)">Ajuste a leitura</div></div><div id="fontBadge">100%</div></div>
+            <input id="fontRange" type="range" min="90" max="140" step="10" value="100" style="width:100%;margin-top:12px" />
+            <div style="margin-top:12px;padding:12px;border-radius:12px;border:1px solid #eef6ff;background:var(--panel)"><div style="font-weight:700">Prévia</div><div style="margin-top:8px;color:var(--muted)">Texto adaptado com linguagem simples e navegação objetiva.</div></div>
+            <button onclick="speak('Configurações de acessibilidade atualizadas.')" style="margin-top:12px;padding:10px;border-radius:12px;background:var(--accent);color:var(--accent-text);border:none;width:100%">Aplicar preferências</button>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <nav class="bottom" aria-label="Navegação inferior">
+    <div class="row">
+      <button data-screen="home">🏠<div style="font-size:11px">Início</div></button>
+      <button data-screen="qr">🔳<div style="font-size:11px">QR</div></button>
+      <button data-screen="profile">👤<div style="font-size:11px">Perfil</div></button>
+      <button data-screen="alerts">🔔<div style="font-size:11px">Alertas</div></button>
+      <button data-screen="settings">⚙️<div style="font-size:11px">Ajustes</div></button>
+    </div>
+  </nav>
+
+  <script>
+    /* Auth modal markup */
+    const authModalHtml = `
+      <div id="authOverlay" style="position:fixed;inset:0;background:rgba(2,6,23,.45);display:none;align-items:center;justify-content:center;z-index:60">
+        <div style="width:420px;max-width:94%;background:var(--panel);border-radius:12px;padding:18px;border:1px solid #eef6ff;box-shadow:0 10px 30px rgba(2,6,23,.12)">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+            <div style="font-weight:700" id="authTitle">Entrar</div>
+            <button id="authClose" style="background:transparent;border:none;font-size:18px;cursor:pointer">✕</button>
+          </div>
+          <div id="authForms">
+            <form id="loginForm" style="display:block">
+              <label style="font-size:13px;color:var(--muted)">Email</label>
+              <input id="loginEmail" type="email" required style="width:100%;padding:10px;border-radius:8px;border:1px solid #eef6ff;margin:6px 0" />
+              <label style="font-size:13px;color:var(--muted)">Senha</label>
+              <input id="loginPass" type="password" required style="width:100%;padding:10px;border-radius:8px;border:1px solid #eef6ff;margin:6px 0" />
+              <div style="display:flex;gap:8px;margin-top:10px">
+                <button type="submit" style="flex:1;padding:10px;border-radius:8px;border:none;background:var(--accent);color:var(--accent-text)">Entrar</button>
+                <button type="button" id="toRegister" style="flex:1;padding:10px;border-radius:8px;border:1px solid #eef6ff;background:transparent">Cadastrar</button>
+              </div>
+            </form>
+            <form id="registerForm" style="display:none">
+              <label style="font-size:13px;color:var(--muted)">Nome</label>
+              <input id="regName" type="text" required style="width:100%;padding:10px;border-radius:8px;border:1px solid #eef6ff;margin:6px 0" />
+              <label style="font-size:13px;color:var(--muted)">Email</label>
+              <input id="regEmail" type="email" required style="width:100%;padding:10px;border-radius:8px;border:1px solid #eef6ff;margin:6px 0" />
+              <label style="font-size:13px;color:var(--muted)">Senha</label>
+              <input id="regPass" type="password" required style="width:100%;padding:10px;border-radius:8px;border:1px solid #eef6ff;margin:6px 0" />
+              <div style="display:flex;gap:8px;margin-top:10px">
+                <button type="submit" style="flex:1;padding:10px;border-radius:8px;border:none;background:var(--accent);color:var(--accent-text)">Criar conta</button>
+                <button type="button" id="toLogin" style="flex:1;padding:10px;border-radius:8px;border:1px solid #eef6ff;background:transparent">Voltar</button>
+              </div>
+            </form>
+          </div>
+          <div id="authMsg" style="margin-top:10px;color:#c2410c;font-size:13px;display:none"></div>
+        </div>
+      </div>
+    `;
+    document.body.insertAdjacentHTML('beforeend', authModalHtml);
+
+    // Auth helpers
+    const overlay = document.getElementById('authOverlay');
+    const authClose = document.getElementById('authClose');
+    const loginForm = document.getElementById('loginForm');
+    const registerForm = document.getElementById('registerForm');
+    const toRegister = document.getElementById('toRegister');
+    const toLogin = document.getElementById('toLogin');
+    const authTitle = document.getElementById('authTitle');
+    const authMsg = document.getElementById('authMsg');
+
+    function showAuth(mode='login'){
+      overlay.style.display='flex'; authMsg.style.display='none';
+      if(mode==='login'){ loginForm.style.display='block'; registerForm.style.display='none'; authTitle.textContent='Entrar'; }
+      else{ loginForm.style.display='none'; registerForm.style.display='block'; authTitle.textContent='Cadastrar'; }
+    }
+    function hideAuth(){ overlay.style.display='none'; }
+
+    document.getElementById('btnLogin').addEventListener('click', ()=>showAuth('login'));
+    document.getElementById('btnRegister').addEventListener('click', ()=>showAuth('register'));
+    document.getElementById('authClose').addEventListener('click', hideAuth);
+    toRegister.addEventListener('click', ()=>showAuth('register'));
+    toLogin.addEventListener('click', ()=>showAuth('login'));
+
+    function usersLoad(){ try{ return JSON.parse(localStorage.getItem('app_users')||'[]'); }catch(e){return[]} }
+    function usersSave(u){ localStorage.setItem('app_users', JSON.stringify(u)); }
+    function currentUserSet(user){ localStorage.setItem('app_current', JSON.stringify(user)); updateAuthUI(); }
+    function currentUserGet(){ try{return JSON.parse(localStorage.getItem('app_current')||'null')}catch(e){return null} }
+
+    function updateAuthUI(){ const cur = currentUserGet(); const userGreeting = document.getElementById('userGreeting'); const userName = document.getElementById('userName'); const btnLogout = document.getElementById('btnLogout'); const btnLogin = document.getElementById('btnLogin'); const btnRegister = document.getElementById('btnRegister');
+      if(cur){ userGreeting.style.display='block'; userName.textContent = cur.name || cur.email; btnLogin.style.display='none'; btnRegister.style.display='none'; btnLogout.style.display='inline-block'; }
+      else{ userGreeting.style.display='none'; btnLogin.style.display='inline-block'; btnRegister.style.display='inline-block'; btnLogout.style.display='none'; }
+    }
+
+    // login
+    loginForm.addEventListener('submit', e=>{ e.preventDefault(); const email=document.getElementById('loginEmail').value.trim(); const pass=document.getElementById('loginPass').value; const users=usersLoad(); const found = users.find(u=>u.email===email && u.pass===pass); if(found){ currentUserSet({name: found.name, email: found.email}); speak('Bem-vindo ' + (found.name||found.email)); hideAuth(); } else { authMsg.textContent='Credenciais inválidas.'; authMsg.style.display='block'; }});
+
+    // register
+    registerForm.addEventListener('submit', e=>{ e.preventDefault(); const name=document.getElementById('regName').value.trim(); const email=document.getElementById('regEmail').value.trim(); const pass=document.getElementById('regPass').value; if(!email||!pass||!name){ authMsg.textContent='Preencha todos os campos.'; authMsg.style.display='block'; return;} const users=usersLoad(); if(users.find(u=>u.email===email)){ authMsg.textContent='Já existe usuário com esse e-mail.'; authMsg.style.display='block'; return;} users.push({name, email, pass}); usersSave(users); currentUserSet({name,email}); speak('Conta criada para ' + name); hideAuth(); });
+
+    document.getElementById('btnLogout').addEventListener('click', ()=>{ localStorage.removeItem('app_current'); updateAuthUI(); speak('Você saiu da conta.'); });
+
+    // on load update
+    updateAuthUI();
+    // State
+    const notifications = [
+      {title: 'Nova atividade disponível', desc: 'Exercício adaptado em Matemática para esta semana.', read: false},
+      {title: 'Acompanhamento pedagógico', desc: 'Seu tutor marcou uma revisão rápida para amanhã.', read: true},
+      {title: 'Lembrete de estudo', desc: 'Você tem 2 tarefas pendentes com prazo próximo.', read: false}
+    ];
+
+    const app = document.getElementById('app');
+    const navButtons = document.querySelectorAll('[data-screen]');
+    function setScreen(id){
+      document.querySelectorAll('.screen').forEach(s=>s.style.display='none');
+      const el = document.getElementById(id); if(el) el.style.display='block';
+      document.querySelectorAll('[data-screen]').forEach(b=>b.classList.toggle('active', b.getAttribute('data-screen')===id));
+      speak(id === 'home' ? 'Início' : document.querySelector('[data-screen].active')?.textContent.trim()||id);
+      renderNotifications();
+    }
+    navButtons.forEach(b=>b.addEventListener('click', ()=>{setScreen(b.getAttribute('data-screen'))}));
+
+    // actions
+    document.querySelectorAll('.action').forEach(a=>a.addEventListener('click', e=>{const t=a.getAttribute('data-action'); setScreen(t);}));
+
+    // Settings toggles
+    const tcContrast = document.getElementById('tcContrast');
+    const tcAudio = document.getElementById('tcAudio');
+    const tcMotion = document.getElementById('tcMotion');
+    tcContrast.addEventListener('click', ()=>{tcContrast.classList.toggle('on'); document.body.classList.toggle('hc');});
+    tcAudio.addEventListener('click', ()=>tcAudio.classList.toggle('on'));
+    tcMotion.addEventListener('click', ()=>tcMotion.classList.toggle('on'));
+
+    // Font size
+    const fontRange = document.getElementById('fontRange');
+    const fontBadge = document.getElementById('fontBadge');
+    fontRange.addEventListener('input', ()=>{const v=fontRange.value;fontBadge.textContent=v+'%';document.documentElement.style.setProperty('--font-scale', v/100)});
+
+    // Notifications
+    function renderNotifications(){
+      const list = document.getElementById('notificationsList'); if(!list) return;
+      list.innerHTML = '';
+      notifications.forEach((n,i)=>{
+        const btn = document.createElement('div'); btn.className='notification';
+        btn.innerHTML = `<div><div style=\"font-weight:700\">${n.title}</div><div style=\"color:var(--muted);font-size:13px;margin-top:6px\">${n.desc}</div></div>`;
+        if(!n.read){ const dot=document.createElement('span'); dot.className='dot'; btn.appendChild(dot); }
+        btn.addEventListener('click', ()=>{n.read=true; speak(n.title); renderNotifications();});
+        list.appendChild(btn);
+      });
+      const unread = notifications.filter(n=>!n.read).length; document.getElementById('unreadCount').textContent = `${unread} notificações ainda não lidas.`;
+    }
+    document.getElementById('markAll').addEventListener('click', ()=>{notifications.forEach(n=>n.read=true); renderNotifications(); speak('Todas as notificações foram marcadas como lidas.');});
+
+    // Speech
+    function speak(text){ const audioOn = tcAudio.classList.contains('on'); if(!audioOn || !('speechSynthesis' in window)) return; const u = new SpeechSynthesisUtterance(text); u.lang='pt-BR'; u.rate=0.95; window.speechSynthesis.cancel(); window.speechSynthesis.speak(u); }
+
+    // Init
+    setScreen('home'); renderNotifications();
+
+    // small keyboard accessibility
+    document.addEventListener('keydown', e=>{ if(e.key==='1') setScreen('home'); if(e.key==='2') setScreen('qr'); if(e.key==='3') setScreen('profile'); if(e.key==='4') setScreen('alerts'); if(e.key==='5') setScreen('settings'); });
+  </script>
+</body>
+</html>
